@@ -1,10 +1,11 @@
 import React from "react";
-import Flow from "./Pages/Home";
 
 export default function App() {
   return (
     <div>
-      <Flow />
+      <div className="flex w-full justify-center items-center h-screen">
+        <h1 className="text-4xl font-semibold animate-bounce">Under Development</h1>
+      </div>
     </div>
   );
 }
