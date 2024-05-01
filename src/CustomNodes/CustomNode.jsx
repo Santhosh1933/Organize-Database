@@ -6,7 +6,10 @@ const CustomNode = ({ data }) => {
     <div className="border-t-4 border border-violet-500 rounded-sm max-w-[200px]  bg-white shadow-sm">
       <h1 className="bg-violet-100 px-6 py-2">Table Name</h1>
       {data.map((row) => (
-        <div key={row.id} className="bg-slate-50 px-2 border-b relative hover:bg-violet-50">
+        <div
+          key={row.id}
+          className=" px-2 border-b relative hover:bg-violet-50"
+        >
           <Handle
             type="source"
             style={{ background: "#555" }}

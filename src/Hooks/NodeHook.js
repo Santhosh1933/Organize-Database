@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 
-const NodeHook = atom({
+export const NodeHook = atom({
   key: "NodeHook",
   default: [],
 });
