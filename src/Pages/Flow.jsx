@@ -33,9 +33,9 @@ function Flow() {
     );
   }, [recoilNode]);
 
-  const setRecoilNodeDebounced = debounce((node) => {
-    setRecoilNode(node);
-  }, 500);
+  // const setRecoilNodeDebounced = debounce((node) => {
+  //   setRecoilNode(node);
+  // }, 500);
 
   const onConnect = useCallback(
     (connection) => setEdges((eds) => addEdge(connection, eds)),
@@ -67,12 +67,16 @@ function Flow() {
     return [midX, midY];
   };
 
-  useEffect(() => {
-    setRecoilNodeDebounced(nodes);
-    return () => {
-      setRecoilNodeDebounced.cancel();
-    };
-  }, [nodes, setRecoilNodeDebounced]);
+  // useEffect(() => {
+  //   setRecoilNodeDebounced(nodes);
+  //   return () => {
+  //     setRecoilNodeDebounced.cancel();
+  //   };
+  // }, [nodes, setRecoilNodeDebounced]);
+
+  useEffect(()=>{
+    console.log(nodes)
+  },[nodes])
 
   return (
     <div style={{ height: "90vh", width: "100vw" }}>

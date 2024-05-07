@@ -12,7 +12,6 @@ import {
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
-  DrawerOverlay,
   Input,
   useDisclosure,
   Menu,
@@ -24,6 +23,7 @@ import {
   MenuOptionGroup,
   MenuDivider,
   Tooltip,
+  Checkbox,
   Divider,
 } from "@chakra-ui/react";
 import { v4 as uuid } from "uuid";
@@ -31,20 +31,20 @@ import React, { useEffect, useState } from "react";
 import { MdModeEditOutline } from "react-icons/md";
 import { GoKebabHorizontal } from "react-icons/go";
 import { FaRegTrashCan } from "react-icons/fa6";
-import { FaKey } from "react-icons/fa";
-import { FaKeycdn } from "react-icons/fa6";
-import { CiMapPin } from "react-icons/ci";
-
-
+import { AiOutlineMessage } from "react-icons/ai";
 
 import { RiMenu2Line } from "react-icons/ri";
 import { FaPlus } from "react-icons/fa6";
 import { useRecoilState } from "recoil";
 import { NodeHook } from "../Hooks/NodeHook";
+import { indexTypes } from "../constants.jsx";
+import { useNodesState } from "reactflow";
 
 export const SidePanel = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [recoilNode, setRecoilNode] = useRecoilState(NodeHook);
+  const [nodes, setNodes, onNodesChange] = useNodesState();
+
   const [editTableName, setEditTableName] = useState(null);
   const [editId, setEditId] = useState(null);
   const [createRowId, setCreateRowId] = useState(null);
@@ -66,7 +66,8 @@ export const SidePanel = () => {
   }
 
   const handleDeleteNode = (id) => {
-    const updatedNodes = recoilNode.filter((node) => node.id !== id);
+    const updatedNodes = nodes.filter((node) => node.id !== id);
+    console.log(nodes)
     setRecoilNode(updatedNodes);
   };
 
@@ -89,6 +90,115 @@ export const SidePanel = () => {
       setEditTableName(null);
       setEditId(null);
     }
+  };
+
+  useEffect(()=>{
+    console.log(nodes)
+  },[nodes])
+
+  const RowUiComponent = ({ row }) => {
+    return (
+      <div
+        key={row.id}
+        className="mb-2 grid grid-cols-3 gap-4 items-center w-full"
+      >
+        <div className="grid grid-cols-2 gap-1 col-span-2">
+          <input
+            defaultValue={row.name}
+            type="text"
+            contentEditable
+            className="border p-2 w-full rounded-md outline-violet-400"
+          />
+          <p className="border max-w-full w-full p-2 rounded-md truncate  outline-violet-400">
+            {row.dataType}
+          </p>
+        </div>
+        <div className="flex items-center gap-4">
+          <Tooltip
+            hasArrow
+            label="Nullable?"
+            className="bg-slate-900"
+            color="white"
+          >
+            <p
+              className={`${
+                row.isNullable && "text-violet-500"
+              } text-sm font-semibold cursor-pointer`}
+            >
+              N
+            </p>
+          </Tooltip>
+
+          <Menu bg={"#1e293b"}>
+            <MenuButton>
+              <p>
+                {indexTypes.map((data) => {
+                  if (data.index == row.indexType) {
+                    return data.icon;
+                  }
+                })}
+              </p>
+            </MenuButton>
+            <MenuList bg={"#1e293b"} className="">
+              <p className=" bg-slate-800 p-4 text-slate-500  font-semibold">
+                Index Type
+              </p>
+              <Divider />
+              {indexTypes.map((index) => (
+                <div
+                  className={`flex transition-all ${
+                    row.indexType === index.index && "bg-slate-600"
+                  } hover:bg-slate-700 cursor-pointer items-center py-2 px-4 gap-2 bg-slate-800 text-white`}
+                >
+                  <p>{index.index}</p>
+                  <p>{index.icon}</p>
+                </div>
+              ))}
+            </MenuList>
+          </Menu>
+
+          <Menu bg={"#1e293b"}>
+            <MenuButton>
+              <GoKebabHorizontal />
+            </MenuButton>
+            <MenuList bg={"#1e293b"} className="">
+              <h1 className="text-white p-4">Column Attribute</h1>
+              <Divider />
+              <div className="text-white px-4 py-2 flex flex-col gap-2">
+                <Checkbox size="md" colorScheme="green">
+                  Auto increment
+                </Checkbox>
+                <Checkbox size="md" colorScheme="green">
+                  Unsigned
+                </Checkbox>
+              </div>
+              <h1 className="text-white p-4 flex gap-1 items-center">
+                Comments <AiOutlineMessage />
+              </h1>
+              <Divider />
+              <div className="px-4 py-2">
+                <textarea className="h-[100px] w-full p-2 resize-none bg-slate-700 text-white outline-none border"></textarea>
+              </div>
+              <div className="w-full flex items-center justify-center px-4 pb-2">
+                <Button className="text-center w-full">Save</Button>
+              </div>
+            </MenuList>
+          </Menu>
+        </div>
+      </div>
+    );
+  };
+
+  const SingleRowInput = ({ node }) => {
+    let row = {
+      id: uuid(),
+      name: `column_${node.length + 1}`,
+      dataType: "INT",
+      isNullable: false,
+      indexType: "None",
+      comment: "",
+    };
+    return <RowUiComponent row={row} />;
   };
 
   return (
@@ -153,10 +263,12 @@ export const SidePanel = () => {
                         }}
                         className="m-1 hover:bg-slate-100"
                       />
+
                       <Menu>
                         <MenuButton>
                           <GoKebabHorizontal className="rotate-90 m-1 hover:bg-slate-100" />
                         </MenuButton>
+
                         <MenuList bg={"#1e293b"} color={"white"}>
                           <MenuItem
                             bg={"#1e293b"}
@@ -182,31 +294,11 @@ export const SidePanel = () => {
                 </AccordionButton>
                 <AccordionPanel pb={4}>
                   {node?.data?.row.map((row) => (
-                    <div
-                      key={row.id}
-                      className="mb-2 grid grid-cols-3 gap-4 items-center w-full"
-                    >
-                      <div className="grid grid-cols-2 gap-1 col-span-2">
-                        <input
-                          defaultValue={row.name}
-                          key={row.id}
-                          className="border p-2 w-full rounded-md outline-violet-400"
-                        />
-                        <p className="border max-w-full w-full p-2 rounded-md truncate  outline-violet-400">
-                          {row.dataType}
-                        </p>
-                      </div>
-                      <div>
-                        <p className={`${row.isNullable&&"text-violet-900"} text-sm font-semibold`}>N</p>
-                      </div>
-                    </div>
+                    <RowUiComponent row={row} />
                   ))}
                   <div>
                     {createRowId === node.id && (
-                      <input
-                        type="text"
-                        className="outline-none border p-1 rounded-md "
-                      />
+                      <SingleRowInput node={node?.data?.row} />
                     )}
                   </div>
                 </AccordionPanel>
