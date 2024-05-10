@@ -1,11 +1,15 @@
 import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Dashboard } from "./pages/Dashboard";
 
 export default function App() {
   return (
     <div>
-      <div className="flex w-full justify-center items-center h-screen">
-        <h1 className="text-4xl font-semibold animate-bounce">Under Development</h1>
-      </div>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
